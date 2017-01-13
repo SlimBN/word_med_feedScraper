@@ -1,2 +1,2 @@
-# word_med_feedScraper
+# wordpress and medium feed Scraper
 Node script to scrape wordpress &amp; medium feeds
