@@ -1,4 +1,4 @@
-### X Scraper 
+### WM Scraper 
 #### Use:
 
 **Install:** 
