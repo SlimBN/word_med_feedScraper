@@ -1,10 +1,13 @@
 {
   "name": "wmscraper",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "wordpress & medium scraper",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "testw": "node tests/testW.js",
+    "testm": "node tests/testM.js",
+    "testwo": "node tests/testWO.js",
+    "testmo": "node tests/testMO.js"
   },
   "repository": {
     "type": "git",

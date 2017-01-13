@@ -10,29 +10,39 @@ var cheerio = require('cheerio');
 var parseString = require('xml2js').parseString;
 
 module.exports = {
-  Medium: function(urlToScrape){
+  getMedium: function(urlToScrape,rms,callB){
     var feedUrl= urlToScrape+"/feed";
     if (feedUrl.startsWith('https')) {
-      https.get(feedUrl, (res)=> {
-        var buf = '';
+      https.get(feedUrl, (res) => {
+        var buf = ''
         res.on('data', function(data) {
           buf += data;
         }).on('end', function() {
-          callM(buf);
+          if(rms===0){
+            var data = callM(buf,rms);
+            callB(data);
+          } else {
+            callM(buf,rms);
+          }
         });
-      });
+      })
     } else {
       http.get(feedUrl, (res)=> {
         var buf = '';
         res.on('data', function(data) {
           buf += data;
         }).on('end', function() {
-          callM(buf);
+          if(rms===0){
+            var data = callM(buf,rms);
+            callB(data);
+          } else {
+            callM(buf,rms);
+          }
         });
       });
     }
   },
-  Wordpress: function (urlToScrape,pages){
+  getWordpress: function (urlToScrape,pages,rms,callB){
     var url1=urlToScrape+"/feed/";
     var urls = [];
     for (var i=0;i<=(pages-2);i++){
@@ -51,7 +61,12 @@ module.exports = {
         });
       });
     }, function(err,responses){
-        callW(responses);
+        if(rms===0){
+          var data = callW(responses,rms);
+          callB(data);
+        } else {
+          callW(responses,rms);
+        }
     });
     } else {
       async.map(urls, function(url, cb) {
@@ -64,15 +79,19 @@ module.exports = {
           });
         });
       }, function(err,responses){
-        callW(responses);
+          if(rms===0){
+          var data = callW(responses,rms);
+          callB(data);
+          } else {
+            callW(responses,rms);
+          }
       });
     }
-
   }
 }
 
 // fns required by Wordpress fn
-function callW(responses) {
+function callW(responses,rms) {
   var wordFeedArray = []; // 'd contain final data
   for (var i = 0; i < responses.length; i++) {
     var $ = cheerio.load(responses[i], {
@@ -89,14 +108,17 @@ function callW(responses) {
     });
   }
   wordFeedArray=uniqa(wordFeedArray);
-  console.log('wordFeedArray length: '+wordFeedArray.length);
-  fs.writeFile( "wordpress.json", JSON.stringify(wordFeedArray), "utf8", ()=>{
-    return '';
-  });
+  if(rms===0){
+    return wordFeedArray;
+  }else{
+    fs.writeFile( "wordpress.json", JSON.stringify(wordFeedArray), "utf8", ()=>{
+      return '';
+    });
+  }
 }
 
 // fns required by Medium fn
-function callM(res) {
+function callM(res,rms) {
   var medFeedArray = []; // 'd contain final data
   var $ = cheerio.load(res, {
     xmlMode: true
@@ -111,13 +133,17 @@ function callM(res) {
     }
   });
   medFeedArray=uniqa(medFeedArray);
-  console.log('medFeedArray length: '+medFeedArray.length);
-  fs.writeFile( "medium.json", JSON.stringify(medFeedArray), "utf8", ()=>{
-    return '';
-  });
+  if(rms===0){
+    return medFeedArray;
+  }else{
+    fs.writeFile( "medium.json", JSON.stringify(medFeedArray), "utf8", ()=>{
+      return '';
+    });
+  }
 }
 
 // universal fns
+// uniqa to only keep unique items in an array
 function uniqa(dayum) {
   var prims = {"boolean":{}, "number":{}, "string":{}}, objs = [];
   return dayum.filter(function(item) {
