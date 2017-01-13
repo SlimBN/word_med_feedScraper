@@ -1,7 +1,7 @@
 ### X Scraper 
 #### Use:
 
-**Install: ** 
+**Install:** 
 ````
 npm install --save wmscraper
 ````
